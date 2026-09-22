@@ -1,0 +1,16 @@
+# Python derleme çıktıları
+__pycache__/
+*.pyc
+
+# Sanal ortam
+venv/
+.venv/
+
+# Gizli bilgiler
+.env
+
+# Editör ve işletim sistemi dosyaları
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
