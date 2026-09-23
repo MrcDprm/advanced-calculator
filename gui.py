@@ -17,6 +17,10 @@ BUTTONS = [
 CONTINUE_OPERATORS = "+-*/^"
 ALLOWED_CHARS = "0123456789.,+-*/^() "
 EDIT_KEYS = ("BackSpace", "Delete", "Left", "Right", "Home", "End")
+KEY_SHORTCUTS = {
+    "@": "sqrt(",
+}
+FUNCTION_TOKENS = ("sqrt(",)
 
 
 class CalculatorApp:
@@ -62,18 +66,19 @@ class CalculatorApp:
         elif value == "=":
             self.calculate()
         elif value == "√":
-            self.prepare_for_input("sqrt(")
-            self.insert_text("sqrt(")
+            self.type_text("sqrt(")
         else:
-            self.prepare_for_input(value)
-            self.insert_text(value)
-
+            self.type_text(value)
 
     def set_expression(self, text):
         self.expression_var.set(text)
         self.entry.icursor(tk.END)
         self.entry.xview_moveto(1)
         self.entry.focus()
+
+    def type_text(self, text):
+        self.prepare_for_input(text)
+        self.insert_text(text)
 
     def insert_text(self, text):
         if self.entry.selection_present():
@@ -86,8 +91,14 @@ class CalculatorApp:
             self.entry.delete(tk.SEL_FIRST, tk.SEL_LAST)
         else:
             position = self.entry.index(tk.INSERT)
-            if position > 0:
-                self.entry.delete(position - 1)
+            text_before = self.expression_var.get()[:position]
+            for token in FUNCTION_TOKENS:
+                if text_before.endswith(token):
+                    self.entry.delete(position - len(token), position)
+                    break
+            else:
+                if position > 0:
+                    self.entry.delete(position - 1)
         self.entry.focus()
 
     def clear_error(self):
@@ -107,13 +118,22 @@ class CalculatorApp:
         if event.char == "=":
             self.calculate()
             return "break"
+        if event.keysym == "BackSpace":
+            self.just_calculated = False
+            self.clear_error()
+            self.backspace()
+            return "break"
+        if event.char in KEY_SHORTCUTS:
+            self.type_text(KEY_SHORTCUTS[event.char])
+            return "break"
         if event.char and event.char.isprintable():
-            if event.char not in ALLOWED_CHARS and not event.char.isalpha():
+            if event.char not in ALLOWED_CHARS:
                 return "break"
             self.prepare_for_input(event.char)
         elif event.keysym in EDIT_KEYS:
             self.just_calculated = False
             self.clear_error()
+
 
     def on_entry_click(self, event):
         self.just_calculated = False
