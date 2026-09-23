@@ -7,13 +7,13 @@ Python ile yazılmış, önce konsolda sonra Tkinter arayüzüyle çalışan gel
 ## Özellikler
 
 ### MVP (konsol sürümü)
-- [ ] Kullanıcıdan matematiksel ifade alma (ör. `3 + 4 * 2`)
-- [ ] Dört işlem: `+`, `-`, `*`, `/`
-- [ ] İşlem önceliği ve parantezli ifadeler (ör. `(3 + 4) * 2`)
-- [ ] Üs alma (`^`) ve karekök (`sqrt(16)`)
-- [ ] Hata yönetimi: sıfıra bölme, geçersiz girdi, kapanmamış parantez
-- [ ] İşlem geçmişi (`gecmis` komutu)
-- [ ] Programdan çıkış (`cikis` komutu)
+- [x] Kullanıcıdan matematiksel ifade alma (ör. `3 + 4 * 2`)
+- [x] Dört işlem: `+`, `-`, `*`, `/`
+- [x] İşlem önceliği ve parantezli ifadeler (ör. `(3 + 4) * 2`)
+- [x] Üs alma (`^`) ve karekök (`sqrt(16)`)
+- [x] Hata yönetimi: sıfıra bölme, geçersiz girdi, kapanmamış parantez
+- [x] İşlem geçmişi (`gecmis` komutu)
+- [x] Programdan çıkış (`cikis` komutu)
 
 ### Sonra eklenecekler
 - [ ] Tkinter arayüzü
