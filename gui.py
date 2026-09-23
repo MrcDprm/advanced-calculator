@@ -23,11 +23,37 @@ KEY_SHORTCUTS = {
 FUNCTION_TOKENS = ("sqrt(",)
 
 
+THEMES = {
+    "dark": {
+        "background": "#202020", "text": "#ffffff", "muted": "#9d9d9d",
+        "digit": "#3b3b3b", "digit_hover": "#454545",
+        "operator": "#2d2d2d", "operator_hover": "#383838",
+        "equals": "#4cc2ff", "equals_hover": "#48b2e9", "equals_text": "#000000",
+    },
+    "light": {
+        "background": "#f3f3f3", "text": "#000000", "muted": "#606060",
+        "digit": "#ffffff", "digit_hover": "#f0f0f0",
+        "operator": "#e9e9e9", "operator_hover": "#dcdcdc",
+        "equals": "#005fb8", "equals_hover": "#196ebf", "equals_text": "#ffffff",
+    },
+}
+
+
+def get_button_kind(text):
+    if text.isdigit() or text == ".":
+        return "digit"
+    if text == "=":
+        return "equals"
+    return "operator"
+
+
 class CalculatorApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Gelişmiş Hesap Makinesi")
-        self.root.resizable(False, False)
+        self.root.minsize(320, 460)
+        self.colors = THEMES["dark"]
+        self.root.configure(bg=self.colors["background"])
         self.history = History()
         self.just_calculated = False
         self.has_error = False
@@ -35,27 +61,46 @@ class CalculatorApp:
         self.expression_var = tk.StringVar()
         self.result_var = tk.StringVar(value="0")
 
-        self.entry = tk.Entry(root, textvariable=self.expression_var,
-                              font=("Consolas", 18), justify="right")
-        self.entry.grid(row=0, column=0, columnspan=4, sticky="ew", padx=8, pady=(8, 0))
+        result_label = tk.Label(root, textvariable=self.result_var, font=("Segoe UI", 12),
+                                anchor="e", bg=self.colors["background"], fg=self.colors["muted"])
+        result_label.grid(row=0, column=0, columnspan=4, sticky="ew", padx=12, pady=(12, 0))
+        result_label.bind("<Configure>", lambda event: result_label.config(wraplength=event.width))
+
+        self.entry = tk.Entry(root, textvariable=self.expression_var, font=("Segoe UI", 28),
+                              justify="right", relief="flat", bd=0,
+                              bg=self.colors["background"], fg=self.colors["text"],
+                              insertbackground=self.colors["text"])
+        self.entry.grid(row=1, column=0, columnspan=4, sticky="ew", padx=12, pady=(0, 12))
         self.entry.focus()
-        result_label = tk.Label(root, textvariable=self.result_var,
-                                font=("Consolas", 14), anchor="e", fg="gray",
-                                wraplength=300)
-        result_label.grid(row=1, column=0, columnspan=4, sticky="ew", padx=8, pady=(0, 8))
 
         for row_index, row in enumerate(BUTTONS):
             for column_index, text in enumerate(row):
-                span = 3 if text == "=" else 1
-                button = tk.Button(root, text=text, font=("Consolas", 16), width=4,
-                                   command=lambda value=text: self.on_button_click(value))
-                button.grid(row=row_index + 2, column=column_index, columnspan=span,
-                            sticky="nsew", padx=2, pady=2)
+                self.create_button(text, row_index + 2, column_index)
+
+        for column in range(4):
+            root.grid_columnconfigure(column, weight=1, uniform="button")
+        for row in range(len(BUTTONS)):
+            root.grid_rowconfigure(row + 2, weight=1, uniform="button")
 
         root.bind("<Return>", lambda event: self.calculate())
         root.bind("<Escape>", lambda event: self.clear())
         self.entry.bind("<Key>", self.on_key)
         self.entry.bind("<Button-1>", self.on_entry_click)
+
+    def create_button(self, text, row, column):
+        kind = get_button_kind(text)
+        normal = self.colors[kind]
+        hover = self.colors[f"{kind}_hover"]
+        text_color = self.colors["equals_text"] if kind == "equals" else self.colors["text"]
+        span = 3 if text == "=" else 1
+
+        button = tk.Button(self.root, text=text, font=("Segoe UI", 16), width=4,
+                           bg=normal, fg=text_color, activebackground=hover,
+                           activeforeground=text_color, relief="flat", bd=0, cursor="hand2",
+                           command=lambda: self.on_button_click(text))
+        button.grid(row=row, column=column, columnspan=span, sticky="nsew", padx=1, pady=1)
+        button.bind("<Enter>", lambda event: button.config(bg=hover))
+        button.bind("<Leave>", lambda event: button.config(bg=normal))
 
     def on_button_click(self, value):
         if value == "C":
@@ -147,7 +192,6 @@ class CalculatorApp:
             self.just_calculated = False
             self.clear_error()
 
-
     def on_entry_click(self, event):
         self.just_calculated = False
 
@@ -171,7 +215,6 @@ class CalculatorApp:
         self.result_var.set(f"{expression} =")
         self.set_expression(result)
         self.just_calculated = True
-        
 
 
 if __name__ == "__main__":
