@@ -16,7 +16,7 @@ BUTTONS = [
 
 CONTINUE_OPERATORS = "+-*/^"
 ALLOWED_CHARS = "0123456789.,+-*/^() "
-EDIT_KEYS = ("BackSpace", "Delete", "Left", "Right", "Home", "End")
+EDIT_KEYS = ("Left", "Right", "Home", "End")
 KEY_SHORTCUTS = {
     "@": "sqrt(",
 }
@@ -62,7 +62,7 @@ class CalculatorApp:
             self.clear()
         elif value == "⌫":
             self.just_calculated = False
-            self.backspace()
+            self.delete_char(forward=False)
         elif value == "=":
             self.calculate()
         elif value == "√":
@@ -86,19 +86,32 @@ class CalculatorApp:
         self.entry.insert(tk.INSERT, text)
         self.entry.focus()
 
-    def backspace(self):
+    def find_function_span(self, position, forward):
+        text = self.expression_var.get()
+        for token in FUNCTION_TOKENS:
+            start = text.find(token)
+            while start != -1:
+                end = start + len(token)
+                if forward and start <= position < end:
+                    return start, end
+                if not forward and start < position <= end:
+                    return start, end
+                start = text.find(token, start + 1)
+        return None
+
+    def delete_char(self, forward):
         if self.entry.selection_present():
             self.entry.delete(tk.SEL_FIRST, tk.SEL_LAST)
         else:
             position = self.entry.index(tk.INSERT)
-            text_before = self.expression_var.get()[:position]
-            for token in FUNCTION_TOKENS:
-                if text_before.endswith(token):
-                    self.entry.delete(position - len(token), position)
-                    break
-            else:
-                if position > 0:
-                    self.entry.delete(position - 1)
+            span = self.find_function_span(position, forward)
+            if span:
+                start, end = span
+                self.entry.delete(start, end)
+            elif forward:
+                self.entry.delete(position)
+            elif position > 0:
+                self.entry.delete(position - 1)
         self.entry.focus()
 
     def clear_error(self):
@@ -118,10 +131,10 @@ class CalculatorApp:
         if event.char == "=":
             self.calculate()
             return "break"
-        if event.keysym == "BackSpace":
+        if event.keysym in ("BackSpace", "Delete"):
             self.just_calculated = False
             self.clear_error()
-            self.backspace()
+            self.delete_char(forward=event.keysym == "Delete")
             return "break"
         if event.char in KEY_SHORTCUTS:
             self.type_text(KEY_SHORTCUTS[event.char])
