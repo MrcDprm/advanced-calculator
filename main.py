@@ -27,7 +27,12 @@ def main():
     print_help
 
     while True:
-        user_input = input("> ").strip()
+        try:
+            user_input = input("> ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print("\nGörüşmek üzere!")
+            break
+                
         command = user_input.lower()
 
         if not user_input:

@@ -1,10 +1,17 @@
 import math
 from tokenizer import tokenize
 
+def square_root(x):
+    if x < 0:
+        raise ValueError("Negatif sayının karekökü alınamaz")
+    return math.sqrt(x)
+
 
 FUNCTIONS = {
-    "sqrt": math.sqrt,
+    "sqrt": square_root,
 }
+
+
 
 
 class Parser:
@@ -65,8 +72,16 @@ class Parser:
         if self.peek() == "^":
             self.advance()
             exponent = self.parse_unary()
-            return base ** exponent
+            if base == 0 and exponent < 0:
+                raise ZeroDivisionError("Sıfıra bölme yapılamaz")
+            if base < 0 and exponent != int(exponent):
+                raise ValueError("Negatif sayının ondalıklı kuvveti alınamaz")
+            try:
+                return base ** exponent
+            except OverflowError:
+                raise OverflowError("Sonuç çok büyük")
         return base
+
 
     def parse_primary(self):
         token = self.advance()
@@ -98,4 +113,8 @@ def evaluate(expression):
     result = parser.parse_expression()
     if parser.peek() is not None:
         raise ValueError(f"Beklenmeyen ifade: '{parser.peek()}'")
+
+    if math.isinf(result):
+        raise OverflowError("Sonuç çok büyük")
+
     return result
