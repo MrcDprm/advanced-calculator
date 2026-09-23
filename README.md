@@ -24,12 +24,12 @@ Python ile yazılmış, önce konsolda sonra Tkinter arayüzüyle çalışan gel
 
 **2. Arayüz ve kullanılabilirlik**
 - [x] Tkinter arayüzü (düğmeler, Enter/Esc kısayolları)
-- [ ] Windows hesap makinesi davranışı: sonuçtan sonra rakam yeni işlem başlatır, operatör sonucun üstüne devam eder; hatadan sonra ilk tuş hatayı temizler
-- [ ] Kutuya sadece geçerli karakterlerin yazılabilmesi; `=` tuşu ile hesaplama
-- [ ] Renkli ve modern düğmeler (rakam / operatör / eşittir ayrı renk), fareyle üzerine gelince renk değişimi
-- [ ] Yeniden boyutlandırılabilir pencere (düğmeler pencereyle büyür)
-- [ ] Açık / koyu tema
-- [ ] Sonucu kopyalama (Ctrl+C)
+- [x] Windows hesap makinesi davranışı: sonuçtan sonra rakam yeni işlem başlatır, operatör sonucun üstüne devam eder; hatadan sonra ilk tuş hatayı temizler
+- [x] Kutuya sadece geçerli karakterlerin yazılabilmesi; `=` tuşu ile hesaplama
+- [x] Renkli ve modern düğmeler (rakam / operatör / eşittir ayrı renk), fareyle üzerine gelince renk değişimi
+- [x] Yeniden boyutlandırılabilir pencere (düğmeler pencereyle büyür)
+- [x] Açık / koyu tema
+- [x] Sonucu kopyalama (Ctrl+C)
 
 **3. Geçmiş ve bellek**
 - [ ] Arayüzde geçmiş paneli; tıklanan kayıt kutuya geri gelir
@@ -51,10 +51,13 @@ Python ile yazılmış, önce konsolda sonra Tkinter arayüzüyle çalışan gel
 
 ```
 advanced-calculator/
-├── main.py         # Programın giriş noktası, konsol döngüsü
+├── gui.py          # Tkinter arayüzü
+├── main.py         # Konsol arayüzü
 ├── tokenizer.py    # İfadeyi parçalara (token) ayırır
 ├── evaluator.py    # Token'ları işlem önceliğine göre hesaplar
-└── history.py      # İşlem geçmişini tutar
+├── formatter.py    # Sonucu okunabilir biçimde gösterir
+├── history.py      # İşlem geçmişini tutar
+└── storage.py      # Geçmiş ve ayarları dosyaya kaydeder
 ```
 
 ## Ekran Görüntüleri
