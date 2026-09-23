@@ -45,10 +45,18 @@ class Parser:
                 result -= right
         return result
 
+    def is_implicit_multiplication(self):
+        token = self.peek()
+        return token == "(" or (isinstance(token, str) and token.isalpha())
+
     def parse_term(self):
         result = self.parse_unary()
-        while self.peek() in ("*", "/"):
-            operator = self.advance()
+        while self.peek() in ("*", "/") or self.is_implicit_multiplication():
+            if self.is_implicit_multiplication():
+                operator = "*"
+            else:
+                operator = self.advance()
+
             right = self.parse_unary()
             if operator == "*":
                 result *= right
