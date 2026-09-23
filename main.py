@@ -16,7 +16,7 @@ def show_history(history):
         print(f"{number}. {expression} = {result}")
 
 def main():
-    history = History()
+    history = History("history.json")
     print("Gelişmiş Hesap Makinesi")
     print_help
 

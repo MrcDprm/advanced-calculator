@@ -3,7 +3,7 @@ import tkinter as tk
 from evaluator import evaluate
 from history import History
 from formatter import format_result
-
+from storage import load_json, save_json
 
 BUTTONS = [
     ["C", "⌫", "(", ")"],
@@ -54,10 +54,12 @@ class CalculatorApp:
         self.root = root
         self.root.title("Gelişmiş Hesap Makinesi")
         self.root.minsize(320, 460)
-        self.theme_name = "dark"
+        self.settings = load_json("settings.json", {})
+        saved_theme = self.settings.get("theme") if isinstance(self.settings, dict) else None
+        self.theme_name = saved_theme if saved_theme in THEMES else "dark"
         self.colors = THEMES[self.theme_name]
         self.buttons = []
-        self.history = History()
+        self.history = History("history.json")
         self.just_calculated = False
         self.has_error = False
 
@@ -127,6 +129,7 @@ class CalculatorApp:
     def toggle_theme(self):
         self.theme_name = "light" if self.theme_name == "dark" else "dark"
         self.colors = THEMES[self.theme_name]
+        save_json("settings.json", {"theme": self.theme_name})
         self.apply_theme()
         self.entry.focus()
 
