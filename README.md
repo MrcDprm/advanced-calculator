@@ -18,9 +18,9 @@ Python ile yazılmış, önce konsolda sonra Tkinter arayüzüyle çalışan gel
 ### Sonra eklenecekler
 
 **1. Hesaplama doğruluğu ve gösterim**
-- [ ] Çok büyük/küçük sayılarda bilimsel gösterim (`1e+25`, `1e-12`)
-- [ ] Binlik ayırıcılı gösterim (`1,234,567`)
-- [ ] Örtük çarpma: `2(3)`, `(1+2)(3+4)`, `2π`
+- [x] Çok büyük/küçük sayılarda bilimsel gösterim (`1e+25`, `1e-12`)
+- [x] Binlik ayırıcılı gösterim (`1,234,567`)
+- [x] Örtük çarpma: `2(3)`, `(1+2)(3+4)`, `2π`
 
 **2. Arayüz ve kullanılabilirlik**
 - [x] Tkinter arayüzü (düğmeler, Enter/Esc kısayolları)
