@@ -1,4 +1,5 @@
 import tkinter as tk
+
 from evaluator import evaluate
 from history import History
 from formatter import format_result
@@ -51,19 +52,33 @@ class CalculatorApp:
         if value == "C":
             self.clear()
         elif value == "⌫":
-            self.set_expression(self.expression_var.get()[:-1])
+            self.backspace()
         elif value == "=":
             self.calculate()
         elif value == "√":
-            self.set_expression(self.expression_var.get() + "sqrt(")
+            self.insert_text("sqrt(")
         else:
-            self.set_expression(self.expression_var.get() + value)
-
+            self.insert_text(value)
 
     def set_expression(self, text):
         self.expression_var.set(text)
         self.entry.icursor(tk.END)
         self.entry.xview_moveto(1)
+        self.entry.focus()
+
+    def insert_text(self, text):
+        if self.entry.selection_present():
+            self.entry.delete(tk.SEL_FIRST, tk.SEL_LAST)
+        self.entry.insert(tk.INSERT, text)
+        self.entry.focus()
+
+    def backspace(self):
+        if self.entry.selection_present():
+            self.entry.delete(tk.SEL_FIRST, tk.SEL_LAST)
+        else:
+            position = self.entry.index(tk.INSERT)
+            if position > 0:
+                self.entry.delete(position - 1)
         self.entry.focus()
 
     def clear(self):
