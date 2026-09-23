@@ -1,12 +1,6 @@
 from evaluator import evaluate
 from history import History
-
-
-def format_result(value):
-    if value == int(value):
-        return str(int(value))
-    return str(round(value, 10))
-
+from formatter import format_result
 
 
 def print_help():
@@ -32,7 +26,7 @@ def main():
         except (KeyboardInterrupt, EOFError):
             print("\nGörüşmek üzere!")
             break
-                
+
         command = user_input.lower()
 
         if not user_input:

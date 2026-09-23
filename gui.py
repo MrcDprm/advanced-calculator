@@ -1,9 +1,7 @@
 import tkinter as tk
-
-
 from evaluator import evaluate
 from history import History
-from main import format_result
+from formatter import format_result
 
 
 BUTTONS = [
