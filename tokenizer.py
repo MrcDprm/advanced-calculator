@@ -15,9 +15,17 @@ def tokenize(expression):
             i += 1
         elif char.isdigit() or char == ".":
             start = i
-            while i < len(expression) and (expression[i].isdigit() or expression[i] == "."):
+            while i < len(expression) and (expression[i].isdigit() or expression[i] in ".,"):
                 i += 1
-            number_text = expression[start:i]
+            if i < len(expression) and expression[i] in "eE":
+                j = i + 1
+                if j < len(expression) and expression[j] in "+-":
+                    j += 1
+                if j < len(expression) and expression[j].isdigit():
+                    i = j
+                    while i < len(expression) and expression[i].isdigit():
+                        i += 1
+            number_text = expression[start:i].replace(",", "")
             try:
                 tokens.append(float(number_text))
             except ValueError:
