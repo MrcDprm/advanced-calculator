@@ -1,7 +1,6 @@
 OPERATORS = "+-*/^()!%"
 
 
-
 def tokenize(expression):
     tokens = []
     i = 0
