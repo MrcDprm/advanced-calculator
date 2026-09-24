@@ -40,9 +40,14 @@ CONTINUE_OPERATORS = "+-*/^!%"
 ALLOWED_CHARS = "0123456789.,+-*/^()!% "
 EDIT_KEYS = ("Left", "Right", "Home", "End")
 KEY_SHORTCUTS = {
-    "@": "sqrt(",
+    "@": "sqrt(", "s": "sin(", "o": "cos(", "t": "tan(",
+    "l": "log(", "n": "ln(", "|": "abs(",
+    "p": "π", "e": "e", "q": "^2",
 }
-FUNCTION_TOKENS = ("sqrt(",)
+KEY_ACTIONS = {"r": "1/x", "F9": "±"}
+FUNCTION_TOKENS = ("sqrt(", "sin(", "cos(", "tan(", "log(", "ln(", "abs(")
+PASTE_NAMES = FUNCTION_TOKENS + ("pi", "π", "e")
+
 
 
 THEMES = {
@@ -221,7 +226,10 @@ class CalculatorApp:
         self.entry.focus()
 
     def toggle_angle_unit(self):
-        self.degrees = not self.degrees
+        self.set_angle_unit(not self.degrees)
+
+    def set_angle_unit(self, degrees):
+        self.degrees = degrees
         self.update_angle_button()
         self.save_settings()
         self.entry.focus()
@@ -423,6 +431,13 @@ class CalculatorApp:
             self.clear_error()
             self.delete_char(forward=event.keysym == "Delete")
             return "break"
+        action = KEY_ACTIONS.get(event.char) or KEY_ACTIONS.get(event.keysym)
+        if action:
+            self.on_button_click(action)
+            return "break"
+        if event.keysym in ("F3", "F4"):
+            self.set_angle_unit(event.keysym == "F3")
+            return "break"        
         if event.char in KEY_SHORTCUTS:
             self.type_text(KEY_SHORTCUTS[event.char])
             return "break"
@@ -450,7 +465,7 @@ class CalculatorApp:
         except tk.TclError:
             return "break"
         check = text
-        for token in FUNCTION_TOKENS:
+        for token in PASTE_NAMES:
             check = check.replace(token, "")
         if all(char in ALLOWED_CHARS for char in check):
             self.type_text(text)

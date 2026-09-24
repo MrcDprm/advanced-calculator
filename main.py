@@ -4,8 +4,8 @@ from formatter import format_result
 
 
 def print_help():
-    print("Komutlar: gecmis, temizle, yardim, cikis")
-    print("Örnekler: (3 + 4) * 2  2 ^ 3  sqrt(16)")
+    print("Komutlar: gecmis, temizle, derece, radyan, yardim, cikis")
+    print("Örnekler: (3 + 4) * 2   2 ^ 3   sqrt(16)   sin(30)   5!   200+10%")
 
 
 def show_history(history):
@@ -18,6 +18,7 @@ def show_history(history):
 def main():
     history = History("history.json")
     print("Gelişmiş Hesap Makinesi")
+    degrees = True
     print_help
 
     while True:
@@ -39,11 +40,17 @@ def main():
         elif command == "temizle":
             history.clear()
             print("Geçmiş temizlendi.")
+        elif command == "derece":
+            degrees = True
+            print("Açı birimi: derece")
+        elif command == "radyan":
+            degrees = False
+            print("Açı birimi: radyan")        
         elif command == "yardim":
             print_help()
         else:
             try:
-                result = format_result(evaluate(user_input))
+                result = format_result(evaluate(user_input, degrees))
                 history.add(user_input, result)
                 print(f"= {result}")
             except (ValueError, ZeroDivisionError, OverflowError) as error:
