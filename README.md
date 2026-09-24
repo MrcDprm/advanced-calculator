@@ -43,7 +43,7 @@ Python ile yazılmış, önce konsolda sonra Tkinter arayüzüyle çalışan gel
 - [x] Standart / bilimsel mod geçişi
 
 **5. Kalite ve yayın**
-- [ ] Birim testleri (`unittest`)
+- [x] Birim testleri (`unittest`)
 - [ ] Ekran görüntüleri ve GIF
 - [ ] Uygulama ikonu, sürüm numarası ve "Hakkında" penceresi
 - [ ] Düğme ipuçları (tooltip) ve README'de klavye kısayolları tablosu
@@ -61,7 +61,8 @@ advanced-calculator/
 ├── evaluator.py    # Token'ları işlem önceliğine göre hesaplar
 ├── formatter.py    # Sonucu okunabilir biçimde gösterir
 ├── history.py      # İşlem geçmişini tutar
-└── storage.py      # Geçmiş ve ayarları dosyaya kaydeder
+├── storage.py      # Geçmiş ve ayarları dosyaya kaydeder
+└── tests/          # Birim testleri
 ```
 
 ## Ekran Görüntüleri
@@ -70,5 +71,19 @@ advanced-calculator/
 - Tkinter (arayüz aşamasında)
 
 ## Kurulum ve Çalıştırma
+
+Python 3.12 veya üstü gerekir; harici paket kullanılmaz.
+
+```bash
+python gui.py     # arayüz
+python main.py    # konsol sürümü
+```
+
+### Testleri çalıştırma
+
+```bash
+python -m unittest -v
+```
+
 ## Öğrendiklerim
 ## Gelecek Planları
