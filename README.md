@@ -37,15 +37,16 @@ Python ile yazılmış, önce konsolda sonra Tkinter arayüzüyle çalışan gel
 - [x] Bellek tuşları: `MC`, `MR`, `M+`, `M-`
 
 **4. Bilimsel fonksiyonlar**
-- [ ] `%`, `±`, `1/x`, `x²`
-- [ ] `sin`, `cos`, `tan` (derece / radyan seçimi)
-- [ ] `log`, `ln`, `π`, `e`, `n!`, `abs`
-- [ ] Standart / bilimsel mod geçişi
+- [x] `%`, `±`, `1/x`, `x²`
+- [x] `sin`, `cos`, `tan` (derece / radyan seçimi)
+- [x] `log`, `ln`, `π`, `e`, `n!`, `abs`
+- [x] Standart / bilimsel mod geçişi
 
 **5. Kalite ve yayın**
 - [ ] Birim testleri (`unittest`)
 - [ ] Ekran görüntüleri ve GIF
 - [ ] Uygulama ikonu, sürüm numarası ve "Hakkında" penceresi
+- [ ] Düğme ipuçları (tooltip) ve README'de klavye kısayolları tablosu
 - [ ] PyInstaller ile tek dosyalık `.exe`
 - [ ] Inno Setup ile Windows kurulum sihirbazı (Başlat menüsü kısayolu, kaldırma desteği)
 - [ ] GitHub Release üzerinden indirme bağlantısı
