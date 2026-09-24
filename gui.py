@@ -6,6 +6,7 @@ from formatter import format_result
 from storage import load_json, save_json
 
 BUTTONS = [
+    ["MC", "MR", "M+", "M-"],
     ["C", "⌫", "(", ")"],
     ["7", "8", "9", "/"],
     ["4", "5", "6", "*"],
@@ -14,6 +15,13 @@ BUTTONS = [
     ["^", "="],
 ]
 
+MEMORY_BUTTONS = ("MC", "MR", "M+", "M-")
+MEMORY_SHORTCUTS = {
+    "<Control-l>": "MC",
+    "<Control-r>": "MR",
+    "<Control-p>": "M+",
+    "<Control-q>": "M-",
+}
 CONTINUE_OPERATORS = "+-*/^"
 ALLOWED_CHARS = "0123456789.,+-*/^() "
 EDIT_KEYS = ("Left", "Right", "Home", "End")
@@ -42,6 +50,8 @@ THEMES = {
 
 
 def get_button_kind(text):
+    if text in MEMORY_BUTTONS:
+        return "icon"
     if text.isdigit() or text == ".":
         return "digit"
     if text == "=":
@@ -53,7 +63,7 @@ class CalculatorApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Gelişmiş Hesap Makinesi")
-        self.root.minsize(320, 460)
+        self.root.minsize(320, 520)
         self.settings = load_json("settings.json", {})
         saved_theme = self.settings.get("theme") if isinstance(self.settings, dict) else None
         self.theme_name = saved_theme if saved_theme in THEMES else "dark"
@@ -63,6 +73,7 @@ class CalculatorApp:
         self.just_calculated = False
         self.has_error = False
         self.history_visible = False
+        self.memory = None
         self.expression_var = tk.StringVar()
         self.result_var = tk.StringVar(value="0")
 
@@ -95,9 +106,12 @@ class CalculatorApp:
         self.entry.bind("<Button-1>", self.on_entry_click)
         self.entry.bind("<<Copy>>", self.on_copy)
         self.entry.bind("<<Paste>>", self.on_paste)
-        self.entry.bind("<Control-h>", self.on_history_shortcut)        
+        self.entry.bind("<Control-h>", self.on_history_shortcut)
+        for sequence, action in MEMORY_SHORTCUTS.items():
+            self.entry.bind(sequence, lambda event, action=action: self.on_memory_shortcut(action))     
         self.create_history_panel()
         self.apply_theme()
+        self.update_memory_buttons()
 
     def create_button(self, text, row, column, command=None, kind=None, parent=None):
         kind = kind or get_button_kind(text)
@@ -113,11 +127,14 @@ class CalculatorApp:
         self.buttons.append((button, kind))
 
     def paint_button(self, button, kind, hover):
+        if button.cget("state") == "disabled":
+            hover = False
         key = f"{kind}_hover" if hover else kind
         text_color = self.colors["equals_text"] if kind == "equals" else self.colors["text"]
         button.config(bg=self.colors[key], fg=text_color,
                       activebackground=self.colors[f"{kind}_hover"],
-                      activeforeground=text_color)
+                      activeforeground=text_color,
+                      disabledforeground=self.colors["muted"],)
 
     def apply_theme(self):
         background = self.colors["background"]
@@ -197,7 +214,48 @@ class CalculatorApp:
         self.refresh_history()
         self.entry.focus()
 
+    def current_value(self):
+        expression = self.expression_var.get().strip()
+        if not expression:
+            return None
+        try:
+            return evaluate(expression)
+        except (ValueError, ZeroDivisionError, OverflowError) as error:
+            self.result_var.set(f"Hata: {error}")
+            self.has_error = True
+            return None
+
+    def on_memory(self, action):
+        if action == "MC":
+            self.memory = None
+        elif action == "MR":
+            if self.memory is not None:
+                text = format_result(self.memory)
+                self.type_text(f"({text})" if self.memory < 0 else text)
+        else:
+            value = self.current_value()
+            if value is None:
+                return
+            sign = 1 if action == "M+" else -1
+            self.memory = (self.memory or 0) + sign * value
+            self.just_calculated = True
+        self.update_memory_buttons()
+        self.entry.focus()
+
+    def on_memory_shortcut(self, action):
+        self.on_memory(action)
+        return "break"
+
+    def update_memory_buttons(self):
+        state = "disabled" if self.memory is None else "normal"
+        for button, kind in self.buttons:
+            if button.cget("text") in ("MC", "MR"):
+                button.config(state=state)
+
     def on_button_click(self, value):
+        if value in MEMORY_BUTTONS:
+            self.on_memory(value)
+            return
         if value == "C":
             self.clear()
         elif value == "⌫":
