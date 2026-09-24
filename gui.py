@@ -62,15 +62,16 @@ class CalculatorApp:
         self.history = History("history.json")
         self.just_calculated = False
         self.has_error = False
-
+        self.history_visible = False
         self.expression_var = tk.StringVar()
         self.result_var = tk.StringVar(value="0")
 
-        self.create_button("◐", 0, 0, command=self.toggle_theme, kind="icon")
+        self.create_button("◐", 0, 0, command=self.toggle_theme, kind="icon")          # 69
+        self.create_button("☰", 0, 3, command=self.toggle_history, kind="icon")       # YENİ satır
 
         self.result_label = tk.Label(root, textvariable=self.result_var,
                                      font=("Segoe UI", 12), anchor="e")
-        self.result_label.grid(row=0, column=1, columnspan=3, sticky="ew", padx=12, pady=(12, 0))
+        self.result_label.grid(row=0, column=1, columnspan=2, sticky="ew", padx=12, pady=(12, 0))
         self.result_label.bind("<Configure>",
                                lambda event: self.result_label.config(wraplength=event.width))
 
@@ -94,16 +95,17 @@ class CalculatorApp:
         self.entry.bind("<Button-1>", self.on_entry_click)
         self.entry.bind("<<Copy>>", self.on_copy)
         self.entry.bind("<<Paste>>", self.on_paste)
-
+        self.entry.bind("<Control-h>", self.on_history_shortcut)        
+        self.create_history_panel()
         self.apply_theme()
 
-    def create_button(self, text, row, column, command=None, kind=None):
+    def create_button(self, text, row, column, command=None, kind=None, parent=None):
         kind = kind or get_button_kind(text)
         if command is None:
             command = lambda: self.on_button_click(text)
         span = 3 if text == "=" else 1
 
-        button = tk.Button(self.root, text=text, font=("Segoe UI", 16), width=4,
+        button = tk.Button(parent or self.root, text=text, font=("Segoe UI", 16), width=4,
                            relief="flat", bd=0, cursor="hand2", command=command)
         button.grid(row=row, column=column, columnspan=span, sticky="nsew", padx=1, pady=1)
         button.bind("<Enter>", lambda event: self.paint_button(button, kind, hover=True))
@@ -125,12 +127,74 @@ class CalculatorApp:
                           insertbackground=self.colors["text"])
         for button, kind in self.buttons:
             self.paint_button(button, kind, hover=False)
+        self.history_frame.config(bg=background)
+        self.history_list.config(bg=background, fg=self.colors["text"],
+                                 selectbackground=self.colors["operator_hover"],
+                                 selectforeground=self.colors["text"])        
 
     def toggle_theme(self):
         self.theme_name = "light" if self.theme_name == "dark" else "dark"
         self.colors = THEMES[self.theme_name]
         save_json("settings.json", {"theme": self.theme_name})
         self.apply_theme()
+        self.entry.focus()
+
+    def create_history_panel(self):
+        self.history_frame = tk.Frame(self.root)
+        self.history_frame.grid(row=0, column=4, rowspan=len(BUTTONS) + 2,
+                                sticky="nsew", padx=(8, 0))
+        self.history_frame.grid_rowconfigure(0, weight=1)
+        self.history_frame.grid_columnconfigure(0, weight=1)
+
+        self.history_list = tk.Listbox(self.history_frame, font=("Segoe UI", 11), width=24,
+                                       relief="flat", bd=0, highlightthickness=0,
+                                       activestyle="none")
+        self.history_list.grid(row=0, column=0, sticky="nsew", padx=8, pady=8)
+        self.history_list.bind("<<ListboxSelect>>", self.on_history_select)
+
+        self.create_button("Temizle", 1, 0, command=self.clear_history, kind="operator",
+                           parent=self.history_frame)
+        self.history_frame.grid_remove()
+        self.refresh_history()
+
+    def refresh_history(self):
+        self.history_entries = list(reversed(self.history.get_all()))
+        self.history_list.delete(0, tk.END)
+        if not self.history_entries:
+            self.history_list.insert(tk.END, "Henüz geçmiş yok")
+        for expression, result in self.history_entries:
+            self.history_list.insert(tk.END, f"{expression} = {result}")
+
+    def toggle_history(self):
+        self.root.update_idletasks()
+        width, height = self.root.winfo_width(), self.root.winfo_height()
+        panel_width = self.history_frame.winfo_reqwidth() + 8
+        if self.history_visible:
+            self.history_frame.grid_remove()
+            self.root.geometry(f"{width - panel_width}x{height}")
+        else:
+            self.history_frame.grid()
+            self.root.geometry(f"{width + panel_width}x{height}")
+        self.history_visible = not self.history_visible
+        self.entry.focus()
+
+    def on_history_shortcut(self, event):
+        self.toggle_history()
+        return "break"
+
+    def on_history_select(self, event):
+        selection = self.history_list.curselection()
+        if not selection or not self.history_entries:
+            return
+        expression, result = self.history_entries[selection[0]]
+        self.has_error = False
+        self.result_var.set(f"{expression} =")
+        self.set_expression(result)
+        self.just_calculated = True
+
+    def clear_history(self):
+        self.history.clear()
+        self.refresh_history()
         self.entry.focus()
 
     def on_button_click(self, value):
@@ -265,6 +329,7 @@ class CalculatorApp:
             self.has_error = True
             return
         self.history.add(expression, result)
+        self.refresh_history()
         self.result_var.set(f"{expression} =")
         self.set_expression(result)
         self.just_calculated = True
