@@ -300,7 +300,7 @@ class CalculatorApp:
 
     def create_history_panel(self):
         self.history_frame = tk.Frame(self.root)
-        self.history_frame.grid(row=0, column=4, rowspan=len(BUTTONS) + 2,
+        self.history_frame.grid(row=0, column=4, rowspan=len(BUTTONS) + len(SCIENTIFIC_BUTTONS) + 2,
                                 sticky="nsew", padx=(8, 0))
         self.history_frame.grid_rowconfigure(0, weight=1)
         self.history_frame.grid_columnconfigure(0, weight=1)
