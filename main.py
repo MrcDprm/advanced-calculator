@@ -1,3 +1,4 @@
+from app_info import APP_NAME, VERSION
 from evaluator import evaluate
 from history import History
 from formatter import format_result
@@ -17,9 +18,9 @@ def show_history(history):
 
 def main():
     history = History("history.json")
-    print("Gelişmiş Hesap Makinesi")
+    print(f"{APP_NAME} {VERSION}")
     degrees = True
-    print_help
+    print_help()
 
     while True:
         try:

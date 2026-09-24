@@ -1,9 +1,12 @@
 import tkinter as tk
+import webbrowser
 
 from evaluator import evaluate
 from history import History
 from formatter import format_result
 from storage import load_json, save_json
+from app_info import APP_NAME, REPOSITORY_URL, VERSION, resource_path
+
 
 BUTTONS = [
     ["MC", "MR", "M+", "M-"],
@@ -81,7 +84,8 @@ def get_button_kind(text):
 class CalculatorApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Gelişmiş Hesap Makinesi")
+        self.root.title(APP_NAME)
+        self.set_icon()
         self.root.minsize(320, 520)
         settings = load_json("settings.json", {})
         if not isinstance(settings, dict):
@@ -202,6 +206,8 @@ class CalculatorApp:
         self.menu.add_separator()
         self.menu.add_command(label="Temayı değiştir", command=self.toggle_theme)
         self.menu.add_command(label="Geçmiş", accelerator="Ctrl+H", command=self.toggle_history)
+        self.menu.add_separator()
+        self.menu.add_command(label="Hakkında", command=self.show_about)
 
     def show_menu(self):
         self.menu.tk_popup(self.root.winfo_pointerx(), self.root.winfo_pointery())
@@ -240,6 +246,39 @@ class CalculatorApp:
     def save_settings(self):
         save_json("settings.json", {"theme": self.theme_name, "degrees": self.degrees,
                                     "mode": self.mode})
+
+    def set_icon(self):
+        try:
+            self.root.iconbitmap(default=resource_path("assets/icon.ico"))
+        except tk.TclError:
+            pass
+
+    def show_about(self):
+        background = self.colors["background"]
+        window = tk.Toplevel(self.root, bg=background, padx=24, pady=20)
+        window.title("Hakkında")
+        window.resizable(False, False)
+        window.transient(self.root)
+        window.geometry(f"+{self.root.winfo_rootx() + 40}+{self.root.winfo_rooty() + 80}")
+
+        texts = [
+            (APP_NAME, ("Segoe UI", 16, "bold")),
+            (f"Sürüm {VERSION}", ("Segoe UI", 11)),
+            ("Python ve Tkinter ile yazılmış, eval() kullanmayan bilimsel hesap makinesi.",
+             ("Segoe UI", 10)),
+        ]
+        for text, font in texts:
+            tk.Label(window, text=text, font=font, wraplength=280, justify="center",
+                     bg=background, fg=self.colors["text"]).pack(pady=2)
+
+        link = tk.Label(window, text="GitHub'da görüntüle", font=("Segoe UI", 10, "underline"),
+                        cursor="hand2", bg=background, fg=self.colors["equals"])
+        link.pack(pady=(10, 0))
+        link.bind("<Button-1>", lambda event: webbrowser.open(REPOSITORY_URL))
+
+        window.bind("<Escape>", lambda event: window.destroy())
+        window.grab_set()
+        window.focus_set()
 
     def create_history_panel(self):
         self.history_frame = tk.Frame(self.root)
