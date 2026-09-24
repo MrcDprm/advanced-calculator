@@ -32,8 +32,8 @@ Python ile yazılmış, önce konsolda sonra Tkinter arayüzüyle çalışan gel
 - [x] Sonucu kopyalama (Ctrl+C)
 
 **3. Geçmiş ve bellek**
-- [ ] Arayüzde geçmiş paneli; tıklanan kayıt kutuya geri gelir
-- [ ] Geçmişi ve ayarları dosyaya kaydetme (program kapanınca kaybolmasın)
+- [x] Arayüzde geçmiş paneli; tıklanan kayıt kutuya geri gelir
+- [x] Geçmişi ve ayarları dosyaya kaydetme (program kapanınca kaybolmasın)
 - [ ] Bellek tuşları: `MC`, `MR`, `M+`, `M-`
 
 **4. Bilimsel fonksiyonlar**
@@ -45,7 +45,10 @@ Python ile yazılmış, önce konsolda sonra Tkinter arayüzüyle çalışan gel
 **5. Kalite ve yayın**
 - [ ] Birim testleri (`unittest`)
 - [ ] Ekran görüntüleri ve GIF
-- [ ] PyInstaller ile Windows `.exe` sürümü (GitHub Release)
+- [ ] Uygulama ikonu, sürüm numarası ve "Hakkında" penceresi
+- [ ] PyInstaller ile tek dosyalık `.exe`
+- [ ] Inno Setup ile Windows kurulum sihirbazı (Başlat menüsü kısayolu, kaldırma desteği)
+- [ ] GitHub Release üzerinden indirme bağlantısı
 
 ## Proje Yapısı
 
