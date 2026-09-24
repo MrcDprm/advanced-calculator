@@ -2,6 +2,11 @@
 __pycache__/
 *.pyc
 
+# PyInstaller ve Inno Setup çıktıları
+build/
+dist/
+installer/Output/
+
 # Sanal ortam
 venv/
 .venv/
