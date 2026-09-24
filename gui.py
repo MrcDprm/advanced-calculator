@@ -12,8 +12,21 @@ BUTTONS = [
     ["4", "5", "6", "*"],
     ["1", "2", "3", "-"],
     ["√", "0", ".", "+"],
-    ["^", "="],
+    ["±", "%", "^", "="],
 ]
+
+SCIENTIFIC_BUTTONS = [
+    ["sin", "cos", "tan", "DEG"],
+    ["log", "ln", "π", "e"],
+    ["x²", "1/x", "n!", "|x|"],
+]
+SCIENTIFIC_ROWS = range(3, 3 + len(SCIENTIFIC_BUTTONS))
+BUTTON_INPUTS = {
+    "√": "sqrt(", "sin": "sin(", "cos": "cos(", "tan": "tan(",
+    "log": "log(", "ln": "ln(", "|x|": "abs(",
+    "x²": "^2", "n!": "!", "π": "π", "e": "e",
+}
+MODES = ("standard", "scientific")
 
 MEMORY_BUTTONS = ("MC", "MR", "M+", "M-")
 MEMORY_SHORTCUTS = {
@@ -65,9 +78,14 @@ class CalculatorApp:
         self.root = root
         self.root.title("Gelişmiş Hesap Makinesi")
         self.root.minsize(320, 520)
-        self.settings = load_json("settings.json", {})
-        saved_theme = self.settings.get("theme") if isinstance(self.settings, dict) else None
-        self.theme_name = saved_theme if saved_theme in THEMES else "dark"
+        settings = load_json("settings.json", {})
+        if not isinstance(settings, dict):
+            settings = {}
+        theme = settings.get("theme")
+        self.theme_name = theme if isinstance(theme, str) and theme in THEMES else "dark"
+        self.degrees = settings.get("degrees", True) is True
+        mode = settings.get("mode")
+        self.mode = mode if mode in MODES else "standard"
         self.colors = THEMES[self.theme_name]
         self.buttons = []
         self.history = History("history.json")
@@ -75,11 +93,13 @@ class CalculatorApp:
         self.has_error = False
         self.history_visible = False
         self.memory = None
+        self.scientific_buttons = []
         self.expression_var = tk.StringVar()
         self.result_var = tk.StringVar(value="0")
 
-        self.create_button("◐", 0, 0, command=self.toggle_theme, kind="icon")          # 69
-        self.create_button("☰", 0, 3, command=self.toggle_history, kind="icon")       # YENİ satır
+        self.create_menu()
+        self.create_button("≡", 0, 0, command=self.show_menu, kind="icon")
+        self.create_button("↺", 0, 3, command=self.toggle_history, kind="icon")
 
         self.result_label = tk.Label(root, textvariable=self.result_var,
                                      font=("Segoe UI", 12), anchor="e")
@@ -92,17 +112,26 @@ class CalculatorApp:
         self.entry.grid(row=1, column=0, columnspan=4, sticky="ew", padx=12, pady=(0, 12))
         self.entry.focus()
 
-        for row_index, row in enumerate(BUTTONS):
+        layout = [BUTTONS[0], *SCIENTIFIC_BUTTONS, *BUTTONS[1:]]
+        for row_index, row in enumerate(layout):
+            grid_row = row_index + 2
             for column_index, text in enumerate(row):
-                self.create_button(text, row_index + 2, column_index)
+                button = self.create_button(text, grid_row, column_index)
+                if grid_row in SCIENTIFIC_ROWS:
+                    self.scientific_buttons.append(button)
+                if text == "DEG":
+                    self.angle_button = button
 
         for column in range(4):
             root.grid_columnconfigure(column, weight=1, uniform="button")
-        for row in range(len(BUTTONS)):
+        for row in range(len(layout)):
             root.grid_rowconfigure(row + 2, weight=1, uniform="button")
+
 
         root.bind("<Return>", lambda event: self.calculate())
         root.bind("<Escape>", lambda event: self.clear())
+        root.bind("<Alt-Key-1>", lambda event: self.set_mode("standard"))
+        root.bind("<Alt-Key-2>", lambda event: self.set_mode("scientific"))        
         self.entry.bind("<Key>", self.on_key)
         self.entry.bind("<Button-1>", self.on_entry_click)
         self.entry.bind("<<Copy>>", self.on_copy)
@@ -113,19 +142,21 @@ class CalculatorApp:
         self.create_history_panel()
         self.apply_theme()
         self.update_memory_buttons()
+        self.update_angle_button()
+        self.apply_mode()
 
     def create_button(self, text, row, column, command=None, kind=None, parent=None):
         kind = kind or get_button_kind(text)
         if command is None:
             command = lambda: self.on_button_click(text)
-        span = 3 if text == "=" else 1
 
         button = tk.Button(parent or self.root, text=text, font=("Segoe UI", 16), width=4,
                            relief="flat", bd=0, cursor="hand2", command=command)
-        button.grid(row=row, column=column, columnspan=span, sticky="nsew", padx=1, pady=1)
+        button.grid(row=row, column=column, sticky="nsew", padx=1, pady=1)
         button.bind("<Enter>", lambda event: self.paint_button(button, kind, hover=True))
         button.bind("<Leave>", lambda event: self.paint_button(button, kind, hover=False))
         self.buttons.append((button, kind))
+        return button
 
     def paint_button(self, button, kind, hover):
         if button.cget("state") == "disabled":
@@ -153,9 +184,54 @@ class CalculatorApp:
     def toggle_theme(self):
         self.theme_name = "light" if self.theme_name == "dark" else "dark"
         self.colors = THEMES[self.theme_name]
-        save_json("settings.json", {"theme": self.theme_name})
+        self.save_settings()
         self.apply_theme()
         self.entry.focus()
+    def create_menu(self):
+        self.mode_var = tk.StringVar(value=self.mode)
+        self.menu = tk.Menu(self.root, tearoff=0)
+        self.menu.add_radiobutton(label="Standart", value="standard", variable=self.mode_var,
+                                  accelerator="Alt+1", command=self.apply_mode)
+        self.menu.add_radiobutton(label="Bilimsel", value="scientific", variable=self.mode_var,
+                                  accelerator="Alt+2", command=self.apply_mode)
+        self.menu.add_separator()
+        self.menu.add_command(label="Temayı değiştir", command=self.toggle_theme)
+        self.menu.add_command(label="Geçmiş", accelerator="Ctrl+H", command=self.toggle_history)
+
+    def show_menu(self):
+        self.menu.tk_popup(self.root.winfo_pointerx(), self.root.winfo_pointery())
+
+    def set_mode(self, mode):
+        self.mode_var.set(mode)
+        self.apply_mode()
+
+    def apply_mode(self):
+        self.mode = self.mode_var.get()
+        scientific = self.mode == "scientific"
+        for button in self.scientific_buttons:
+            if scientific:
+                button.grid()
+            else:
+                button.grid_remove()
+        for row in SCIENTIFIC_ROWS:
+            self.root.grid_rowconfigure(row, weight=1 if scientific else 0,
+                                        uniform="button" if scientific else "")
+        self.root.geometry("")
+        self.save_settings()
+        self.entry.focus()
+
+    def toggle_angle_unit(self):
+        self.degrees = not self.degrees
+        self.update_angle_button()
+        self.save_settings()
+        self.entry.focus()
+
+    def update_angle_button(self):
+        self.angle_button.config(text="DEG" if self.degrees else "RAD")
+
+    def save_settings(self):
+        save_json("settings.json", {"theme": self.theme_name, "degrees": self.degrees,
+                                    "mode": self.mode})
 
     def create_history_panel(self):
         self.history_frame = tk.Frame(self.root)
@@ -220,7 +296,7 @@ class CalculatorApp:
         if not expression:
             return None
         try:
-            return evaluate(expression)
+            return evaluate(expression, self.degrees)
         except (ValueError, ZeroDivisionError, OverflowError) as error:
             self.result_var.set(f"Hata: {error}")
             self.has_error = True
@@ -256,18 +332,30 @@ class CalculatorApp:
     def on_button_click(self, value):
         if value in MEMORY_BUTTONS:
             self.on_memory(value)
-            return
-        if value == "C":
+        elif value == "C":
             self.clear()
         elif value == "⌫":
             self.just_calculated = False
             self.delete_char(forward=False)
         elif value == "=":
             self.calculate()
-        elif value == "√":
-            self.type_text("sqrt(")
+        elif value == "DEG":
+            self.toggle_angle_unit()
+        elif value == "±":
+            self.apply_to_expression("-({})")
+        elif value == "1/x":
+            self.apply_to_expression("1/({})")
+        elif value in BUTTON_INPUTS:
+            self.type_text(BUTTON_INPUTS[value])
         else:
             self.type_text(value)
+
+    def apply_to_expression(self, template):
+        expression = self.expression_var.get().strip()
+        if not expression:
+            return
+        self.set_expression(template.format(expression))
+        self.calculate()
 
     def set_expression(self, text):
         self.expression_var.set(text)
@@ -382,7 +470,7 @@ class CalculatorApp:
         if not expression:
             return
         try:
-            result = format_result(evaluate(expression))
+            result = format_result(evaluate(expression, self.degrees))
         except (ValueError, ZeroDivisionError, OverflowError) as error:
             self.result_var.set(f"Hata: {error}")
             self.has_error = True
