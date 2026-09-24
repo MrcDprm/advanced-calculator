@@ -45,11 +45,25 @@ Python ile yazılmış, önce konsolda sonra Tkinter arayüzüyle çalışan gel
 **5. Kalite ve yayın**
 - [x] Birim testleri (`unittest`)
 - [ ] Ekran görüntüleri ve GIF
-- [ ] Uygulama ikonu, sürüm numarası ve "Hakkında" penceresi
+- [x] Uygulama ikonu, sürüm numarası ve "Hakkında" penceresi
 - [ ] Düğme ipuçları (tooltip) ve README'de klavye kısayolları tablosu
 - [ ] PyInstaller ile tek dosyalık `.exe`
 - [ ] Inno Setup ile Windows kurulum sihirbazı (Başlat menüsü kısayolu, kaldırma desteği)
 - [ ] GitHub Release üzerinden indirme bağlantısı
+
+## Klavye Kısayolları
+
+| Tuş | İşlev | Tuş | İşlev |
+|---|---|---|---|
+| `Enter` veya `=` | Hesapla | `Esc` | Temizle |
+| `Backspace` / `Delete` | Sil (fonksiyon adları bütün olarak silinir) | `Ctrl+C` / `Ctrl+V` | Kopyala / yapıştır |
+| `s` / `o` / `t` | sin / cos / tan | `F3` / `F4` | Derece / radyan |
+| `l` / `n` | log / ln | `p` / `e` | π / e |
+| `q` | x² | `r` | 1/x |
+| `@` | √ | `F9` | ± |
+| `\|` | \|x\| | `!` / `%` | Faktöriyel / yüzde |
+| `Ctrl+L` / `Ctrl+R` | Belleği temizle / bellekten oku | `Ctrl+P` / `Ctrl+Q` | Belleğe ekle / bellekten çıkar |
+| `Ctrl+H` | Geçmiş paneli | `Alt+1` / `Alt+2` | Standart / bilimsel mod |
 
 ## Proje Yapısı
 
@@ -62,6 +76,9 @@ advanced-calculator/
 ├── formatter.py    # Sonucu okunabilir biçimde gösterir
 ├── history.py      # İşlem geçmişini tutar
 ├── storage.py      # Geçmiş ve ayarları dosyaya kaydeder
+├── tooltip.py      # Düğme ipuçları
+├── app_info.py     # Uygulama adı, sürüm, kaynak dosya yolları
+├── assets/         # Uygulama ikonu
 └── tests/          # Birim testleri
 ```
 
