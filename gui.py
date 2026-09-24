@@ -22,8 +22,9 @@ MEMORY_SHORTCUTS = {
     "<Control-p>": "M+",
     "<Control-q>": "M-",
 }
-CONTINUE_OPERATORS = "+-*/^"
-ALLOWED_CHARS = "0123456789.,+-*/^() "
+
+CONTINUE_OPERATORS = "+-*/^!%"
+ALLOWED_CHARS = "0123456789.,+-*/^()!% "
 EDIT_KEYS = ("Left", "Right", "Home", "End")
 KEY_SHORTCUTS = {
     "@": "sqrt(",

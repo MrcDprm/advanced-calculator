@@ -27,6 +27,12 @@ def natural_log(x):
         raise ValueError("Logaritma sadece pozitif sayılar için tanımlıdır")
     return math.log(x)
 
+def factorial(x):
+    if x < 0 or x != int(x):
+        raise ValueError("Faktöriyel sadece negatif olmayan tam sayılar için tanımlıdır")
+    if x > 170:
+        raise OverflowError("Sonuç çok büyük")
+    return float(math.factorial(int(x)))
 
 FUNCTIONS = {
     "sqrt": square_root,
@@ -65,6 +71,8 @@ class Parser:
         while self.peek() in ("+", "-"):
             operator = self.advance()
             right = self.parse_term()
+            if self.tokens[self.pos - 1] == "%":
+                right = result * right            
             if operator == "+":
                 result += right
             else:
@@ -101,8 +109,18 @@ class Parser:
             return self.parse_unary()
         return self.parse_power()
 
+    def parse_postfix(self):
+        value = self.parse_primary()
+        while self.peek() in ("!", "%"):
+            operator = self.advance()
+            if operator == "!":
+                value = factorial(value)
+            else:
+                value = value / 100
+        return value
+
     def parse_power(self):
-        base = self.parse_primary()
+        base = self.parse_postfix()
         if self.peek() == "^":
             self.advance()
             exponent = self.parse_unary()

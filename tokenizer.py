@@ -1,4 +1,5 @@
-OPERATORS = "+-*/^()"
+OPERATORS = "+-*/^()!%"
+
 
 
 def tokenize(expression):
