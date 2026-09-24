@@ -23,6 +23,7 @@ PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=Output
 OutputBaseFilename=AdvancedCalculator-{#AppVersion}-Setup
 SetupIconFile=..\assets\icon.ico
+LicenseFile=..\LICENSE
 UninstallDisplayIcon={app}\{#AppExeName}
 Compression=lzma2
 SolidCompression=yes
