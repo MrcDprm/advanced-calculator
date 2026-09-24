@@ -46,8 +46,8 @@ Python ile yazılmış, önce konsolda sonra Tkinter arayüzüyle çalışan gel
 - [x] Birim testleri (`unittest`)
 - [ ] Ekran görüntüleri ve GIF
 - [x] Uygulama ikonu, sürüm numarası ve "Hakkında" penceresi
-- [ ] Düğme ipuçları (tooltip) ve README'de klavye kısayolları tablosu
-- [ ] PyInstaller ile tek dosyalık `.exe`
+- [x] Düğme ipuçları (tooltip) ve README'de klavye kısayolları tablosu
+- [ ] PyInstaller ile `.exe` derlemesi
 - [ ] Inno Setup ile Windows kurulum sihirbazı (Başlat menüsü kısayolu, kaldırma desteği)
 - [ ] GitHub Release üzerinden indirme bağlantısı
 
