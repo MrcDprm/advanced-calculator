@@ -1,5 +1,14 @@
 import math
+
 from tokenizer import tokenize
+
+TRIG_FUNCTIONS = ("sin", "cos", "tan")
+CONSTANTS = {
+    "π": math.pi,
+    "pi": math.pi,
+    "e": math.e,
+}
+
 
 def square_root(x):
     if x < 0:
@@ -7,17 +16,34 @@ def square_root(x):
     return math.sqrt(x)
 
 
+def logarithm(x):
+    if x <= 0:
+        raise ValueError("Logaritma sadece pozitif sayılar için tanımlıdır")
+    return math.log10(x)
+
+
+def natural_log(x):
+    if x <= 0:
+        raise ValueError("Logaritma sadece pozitif sayılar için tanımlıdır")
+    return math.log(x)
+
+
 FUNCTIONS = {
     "sqrt": square_root,
+    "log": logarithm,
+    "ln": natural_log,
+    "abs": abs,
+    "sin": math.sin,
+    "cos": math.cos,
+    "tan": math.tan,
 }
 
 
-
-
 class Parser:
-    def __init__(self, tokens):
+    def __init__(self, tokens, degrees=False):
         self.tokens = tokens
         self.pos = 0
+        self.degrees = degrees
 
     def peek(self):
         if self.pos < len(self.tokens):
@@ -102,22 +128,35 @@ class Parser:
             self.expect(")")
             return value
 
+
         if token in FUNCTIONS:
             self.expect("(")
             argument = self.parse_expression()
             self.expect(")")
+            if token in TRIG_FUNCTIONS:
+                return self.apply_trig(token, argument)
             return FUNCTIONS[token](argument)
+
+        if token in CONSTANTS:
+            return CONSTANTS[token]
 
         if token is None:
             raise ValueError("İfade eksik")
         raise ValueError(f"Beklenmeyen ifade: '{token}'")
 
+    def apply_trig(self, name, argument):
+        if self.degrees:
+            argument = math.radians(argument)
+        if name == "tan" and abs(math.cos(argument)) < 1e-12:
+            raise ValueError("Bu açının tanjantı tanımsız")
+        result = FUNCTIONS[name](argument)
+        return 0.0 if abs(result) < 1e-12 else result
 
-def evaluate(expression):
+def evaluate(expression, degrees=False):
     tokens = tokenize(expression)
     if not tokens:
         raise ValueError("Boş ifade")
-    parser = Parser(tokens)
+    parser = Parser(tokens, degrees)
     result = parser.parse_expression()
     if parser.peek() is not None:
         raise ValueError(f"Beklenmeyen ifade: '{parser.peek()}'")
