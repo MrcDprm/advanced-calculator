@@ -6,6 +6,7 @@ from history import History
 from formatter import format_result
 from storage import load_json, save_json
 from app_info import APP_NAME, REPOSITORY_URL, VERSION, resource_path
+from tooltip import Tooltip
 
 
 BUTTONS = [
@@ -30,6 +31,20 @@ BUTTON_INPUTS = {
     "x²": "^2", "n!": "!", "π": "π", "e": "e",
 }
 MODES = ("standard", "scientific")
+TOOLTIPS = {
+    "≡": "Menü", "↺": "Geçmiş (Ctrl+H)",
+    "MC": "Belleği temizle (Ctrl+L)", "MR": "Bellekteki değeri yaz (Ctrl+R)",
+    "M+": "Belleğe ekle (Ctrl+P)", "M-": "Bellekten çıkar (Ctrl+Q)",
+    "sin": "Sinüs (s)", "cos": "Kosinüs (o)", "tan": "Tanjant (t)",
+    "DEG": "Açı birimi: derece / radyan (F3 / F4)",
+    "log": "10 tabanında logaritma (l)", "ln": "Doğal logaritma (n)",
+    "π": "Pi sayısı (p)", "e": "Euler sayısı (e)",
+    "x²": "Kare (q)", "1/x": "Çarpmaya göre ters (r)",
+    "n!": "Faktöriyel (!)", "|x|": "Mutlak değer (|)",
+    "C": "Temizle (Esc)", "⌫": "Geri sil (Backspace)",
+    "√": "Karekök (@)", "±": "İşaret değiştir (F9)", "%": "Yüzde (%)",
+    "^": "Üs alma (^)", "=": "Hesapla (Enter)",
+}
 
 MEMORY_BUTTONS = ("MC", "MR", "M+", "M-")
 MEMORY_SHORTCUTS = {
@@ -164,6 +179,8 @@ class CalculatorApp:
         button.grid(row=row, column=column, sticky="nsew", padx=1, pady=1)
         button.bind("<Enter>", lambda event: self.paint_button(button, kind, hover=True))
         button.bind("<Leave>", lambda event: self.paint_button(button, kind, hover=False))
+        if text in TOOLTIPS:
+            Tooltip(button, TOOLTIPS[text])
         self.buttons.append((button, kind))
         return button
 
