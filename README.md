@@ -34,7 +34,7 @@ Python ile yazılmış, önce konsolda sonra Tkinter arayüzüyle çalışan gel
 **3. Geçmiş ve bellek**
 - [x] Arayüzde geçmiş paneli; tıklanan kayıt kutuya geri gelir
 - [x] Geçmişi ve ayarları dosyaya kaydetme (program kapanınca kaybolmasın)
-- [ ] Bellek tuşları: `MC`, `MR`, `M+`, `M-`
+- [x] Bellek tuşları: `MC`, `MR`, `M+`, `M-`
 
 **4. Bilimsel fonksiyonlar**
 - [ ] `%`, `±`, `1/x`, `x²`
