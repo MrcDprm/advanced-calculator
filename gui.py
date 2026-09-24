@@ -1,5 +1,6 @@
 import tkinter as tk
 import webbrowser
+from tkinter import messagebox
 
 from evaluator import evaluate
 from history import History
@@ -66,15 +67,13 @@ KEY_ACTIONS = {"r": "1/x", "F9": "±"}
 FUNCTION_TOKENS = ("sqrt(", "sin(", "cos(", "tan(", "log(", "ln(", "abs(")
 PASTE_NAMES = FUNCTION_TOKENS + ("pi", "π", "e")
 
-
-
 THEMES = {
     "dark": {
         "background": "#202020", "text": "#ffffff", "muted": "#9d9d9d",
         "digit": "#3b3b3b", "digit_hover": "#454545",
         "operator": "#2d2d2d", "operator_hover": "#383838",
         "equals": "#4cc2ff", "equals_hover": "#48b2e9", "equals_text": "#000000",
-        "icon": "#202020", "icon_hover": "#2d2d2d",        
+        "icon": "#202020", "icon_hover": "#2d2d2d",
     },
     "light": {
         "background": "#f3f3f3", "text": "#000000", "muted": "#606060",
@@ -99,6 +98,7 @@ def get_button_kind(text):
 class CalculatorApp:
     def __init__(self, root):
         self.root = root
+        root.report_callback_exception = self.on_unexpected_error
         self.root.title(APP_NAME)
         self.set_icon()
         self.root.minsize(320, 520)
@@ -151,18 +151,18 @@ class CalculatorApp:
         for row in range(len(layout)):
             root.grid_rowconfigure(row + 2, weight=1, uniform="button")
 
-
         root.bind("<Return>", lambda event: self.calculate())
+        root.bind("<KP_Enter>", lambda event: self.calculate())
         root.bind("<Escape>", lambda event: self.clear())
         root.bind("<Alt-Key-1>", lambda event: self.set_mode("standard"))
-        root.bind("<Alt-Key-2>", lambda event: self.set_mode("scientific"))        
+        root.bind("<Alt-Key-2>", lambda event: self.set_mode("scientific"))
         self.entry.bind("<Key>", self.on_key)
         self.entry.bind("<Button-1>", self.on_entry_click)
         self.entry.bind("<<Copy>>", self.on_copy)
         self.entry.bind("<<Paste>>", self.on_paste)
         self.entry.bind("<Control-h>", self.on_history_shortcut)
         for sequence, action in MEMORY_SHORTCUTS.items():
-            self.entry.bind(sequence, lambda event, action=action: self.on_memory_shortcut(action))     
+            self.entry.bind(sequence, lambda event, action=action: self.on_memory_shortcut(action))
         self.create_history_panel()
         self.apply_theme()
         self.update_memory_buttons()
@@ -192,7 +192,7 @@ class CalculatorApp:
         button.config(bg=self.colors[key], fg=text_color,
                       activebackground=self.colors[f"{kind}_hover"],
                       activeforeground=text_color,
-                      disabledforeground=self.colors["muted"],)
+                      disabledforeground=self.colors["muted"])
 
     def apply_theme(self):
         background = self.colors["background"]
@@ -205,7 +205,7 @@ class CalculatorApp:
         self.history_frame.config(bg=background)
         self.history_list.config(bg=background, fg=self.colors["text"],
                                  selectbackground=self.colors["operator_hover"],
-                                 selectforeground=self.colors["text"])        
+                                 selectforeground=self.colors["text"])
 
     def toggle_theme(self):
         self.theme_name = "light" if self.theme_name == "dark" else "dark"
@@ -213,6 +213,7 @@ class CalculatorApp:
         self.save_settings()
         self.apply_theme()
         self.entry.focus()
+
     def create_menu(self):
         self.mode_var = tk.StringVar(value=self.mode)
         self.menu = tk.Menu(self.root, tearoff=0)
@@ -487,15 +488,19 @@ class CalculatorApp:
             self.clear_error()
             self.delete_char(forward=event.keysym == "Delete")
             return "break"
-        action = KEY_ACTIONS.get(event.char) or KEY_ACTIONS.get(event.keysym)
+        char = event.char.lower()
+        action = KEY_ACTIONS.get(char) or KEY_ACTIONS.get(event.keysym)
         if action:
             self.on_button_click(action)
             return "break"
         if event.keysym in ("F3", "F4"):
             self.set_angle_unit(event.keysym == "F3")
-            return "break"        
-        if event.char in KEY_SHORTCUTS:
-            self.type_text(KEY_SHORTCUTS[event.char])
+            return "break"
+        if event.char == ",":
+            self.type_text(".")
+            return "break"
+        if char in KEY_SHORTCUTS:
+            self.type_text(KEY_SHORTCUTS[char])
             return "break"
         if event.char and event.char.isprintable():
             if event.char not in ALLOWED_CHARS:
@@ -504,6 +509,9 @@ class CalculatorApp:
         elif event.keysym in EDIT_KEYS:
             self.just_calculated = False
             self.clear_error()
+
+    def on_unexpected_error(self, exc_type, exc_value, exc_traceback):
+        messagebox.showerror(APP_NAME, "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.")
 
     def on_entry_click(self, event):
         self.just_calculated = False
@@ -534,7 +542,7 @@ class CalculatorApp:
         self.set_expression("")
         self.result_var.set("0")
         self.just_calculated = False
-        self.has_error = False        
+        self.has_error = False
 
     def calculate(self):
         expression = self.expression_var.get().strip()

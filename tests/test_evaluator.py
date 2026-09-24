@@ -22,6 +22,8 @@ class TestEvaluate(unittest.TestCase):
             ("abs(-7.5)", 7.5),
             ("1,000 + 1", 1001),
             ("1e3", 1000),
+            ("1,234.5 + 0.5", 1235),
+            ("((0.1+0.2)*10)!", 6),
         ]
         for expression, expected in cases:
             with self.subTest(expression=expression):
@@ -52,6 +54,14 @@ class TestEvaluate(unittest.TestCase):
             ("tan(90)", ValueError),
             ("10 ^ 1000", OverflowError),
             ("171!", OverflowError),
+            ("2,5", ValueError),
+            ("1,,2", ValueError),
+            ("1.234,56", ValueError),
+            ("(" * 2000 + "1" + ")" * 2000, ValueError),
+            ("-" * 3000 + "5", ValueError),
+            ("(10^308*10)-(10^308*10)", OverflowError),
+            ("1e999", OverflowError),
+            ("sin(1e999)", OverflowError),
         ]
         for expression, error in cases:
             with self.subTest(expression=expression):

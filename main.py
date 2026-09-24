@@ -13,8 +13,9 @@ def show_history(history):
     if history.is_empty():
         print("Geçmiş boş.")
         return
-    for number, (expression, result) in enumerate(history.get_all(), start = 1):
+    for number, (expression, result) in enumerate(history.get_all(), start=1):
         print(f"{number}. {expression} = {result}")
+
 
 def main():
     history = History("history.json")
@@ -46,7 +47,7 @@ def main():
             print("Açı birimi: derece")
         elif command == "radyan":
             degrees = False
-            print("Açı birimi: radyan")        
+            print("Açı birimi: radyan")
         elif command == "yardim":
             print_help()
         else:

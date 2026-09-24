@@ -11,7 +11,8 @@ class History:
             data = load_json(file_name, [])
             if isinstance(data, list):
                 self._entries = [tuple(entry) for entry in data
-                                 if isinstance(entry, list) and len(entry) == 2]
+                                 if isinstance(entry, list) and len(entry) == 2
+                                 and all(isinstance(item, str) for item in entry)]
 
     def add(self, expression, result):
         self._entries.append((expression, result))

@@ -46,3 +46,12 @@ class TestHistory(unittest.TestCase):
     def test_corrupt_file_starts_empty(self):
         (Path(self.temp_dir.name) / "history.json").write_text("bozuk", encoding="utf-8")
         self.assertTrue(History("history.json").is_empty())
+
+    def test_invalid_encoding_starts_empty(self):
+        (Path(self.temp_dir.name) / "history.json").write_bytes(b"\xff\xfe\x00")
+        self.assertTrue(History("history.json").is_empty())
+
+    def test_skips_invalid_entries(self):
+        (Path(self.temp_dir.name) / "history.json").write_text(
+            '[["2+2", "4"], [1, 2], ["tek"], "metin"]', encoding="utf-8")
+        self.assertEqual(History("history.json").get_all(), [("2+2", "4")])

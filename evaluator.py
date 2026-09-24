@@ -10,6 +10,17 @@ CONSTANTS = {
 }
 
 
+def check_finite(value):
+    if math.isinf(value) or math.isnan(value):
+        raise OverflowError("Sonuç çok büyük")
+    return value
+
+
+def snap_to_integer(x):
+    nearest = round(x)
+    return float(nearest) if abs(x - nearest) < 1e-9 else x
+
+
 def square_root(x):
     if x < 0:
         raise ValueError("Negatif sayının karekökü alınamaz")
@@ -27,12 +38,15 @@ def natural_log(x):
         raise ValueError("Logaritma sadece pozitif sayılar için tanımlıdır")
     return math.log(x)
 
+
 def factorial(x):
+    x = snap_to_integer(x)
     if x < 0 or x != int(x):
         raise ValueError("Faktöriyel sadece negatif olmayan tam sayılar için tanımlıdır")
     if x > 170:
         raise OverflowError("Sonuç çok büyük")
     return float(math.factorial(int(x)))
+
 
 FUNCTIONS = {
     "sqrt": square_root,
@@ -65,18 +79,19 @@ class Parser:
         token = self.advance()
         if token != expected:
             raise ValueError(f"'{expected}' bekleniyordu")
-        
+
     def parse_expression(self):
         result = self.parse_term()
         while self.peek() in ("+", "-"):
             operator = self.advance()
             right = self.parse_term()
             if self.tokens[self.pos - 1] == "%":
-                right = result * right            
+                right = result * right
             if operator == "+":
                 result += right
             else:
                 result -= right
+            check_finite(result)
         return result
 
     def is_implicit_multiplication(self):
@@ -98,6 +113,7 @@ class Parser:
                 if right == 0:
                     raise ZeroDivisionError("Sıfıra bölme yapılamaz")
                 result /= right
+            check_finite(result)
         return result
 
     def parse_unary(self):
@@ -109,21 +125,12 @@ class Parser:
             return self.parse_unary()
         return self.parse_power()
 
-    def parse_postfix(self):
-        value = self.parse_primary()
-        while self.peek() in ("!", "%"):
-            operator = self.advance()
-            if operator == "!":
-                value = factorial(value)
-            else:
-                value = value / 100
-        return value
-
     def parse_power(self):
         base = self.parse_postfix()
         if self.peek() == "^":
             self.advance()
             exponent = self.parse_unary()
+            exponent = snap_to_integer(exponent)
             if base == 0 and exponent < 0:
                 raise ZeroDivisionError("Sıfıra bölme yapılamaz")
             if base < 0 and exponent != int(exponent):
@@ -134,18 +141,26 @@ class Parser:
                 raise OverflowError("Sonuç çok büyük")
         return base
 
+    def parse_postfix(self):
+        value = self.parse_primary()
+        while self.peek() in ("!", "%"):
+            operator = self.advance()
+            if operator == "!":
+                value = factorial(value)
+            else:
+                value = value / 100
+        return value
 
     def parse_primary(self):
         token = self.advance()
 
         if isinstance(token, float):
-            return token
+            return check_finite(token)
 
         if token == "(":
             value = self.parse_expression()
             self.expect(")")
             return value
-
 
         if token in FUNCTIONS:
             self.expect("(")
@@ -170,16 +185,16 @@ class Parser:
         result = FUNCTIONS[name](argument)
         return 0.0 if abs(result) < 1e-12 else result
 
+
 def evaluate(expression, degrees=False):
     tokens = tokenize(expression)
     if not tokens:
         raise ValueError("Boş ifade")
     parser = Parser(tokens, degrees)
-    result = parser.parse_expression()
+    try:
+        result = parser.parse_expression()
+    except RecursionError:
+        raise ValueError("İfade çok karmaşık")
     if parser.peek() is not None:
         raise ValueError(f"Beklenmeyen ifade: '{parser.peek()}'")
-
-    if math.isinf(result):
-        raise OverflowError("Sonuç çok büyük")
-
-    return result
+    return check_finite(result)

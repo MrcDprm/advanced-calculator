@@ -1,4 +1,7 @@
+import re
+
 OPERATORS = "+-*/^()!%"
+GROUPED_NUMBER = re.compile(r"\d{1,3}(,\d{3})+(\.\d*)?([eE][+-]?\d+)?")
 
 
 def tokenize(expression):
@@ -25,17 +28,20 @@ def tokenize(expression):
                     i = j
                     while i < len(expression) and expression[i].isdigit():
                         i += 1
-            number_text = expression[start:i].replace(",", "")
+            raw_text = expression[start:i]
+            if "," in raw_text and not GROUPED_NUMBER.fullmatch(raw_text):
+                raise ValueError(f"Geçersiz sayı: '{raw_text}' (ondalık için nokta kullanın)")
+            number_text = raw_text.replace(",", "")
             try:
                 tokens.append(float(number_text))
             except ValueError:
-                raise ValueError(f"Geçersiz Sayı: '{number_text}'")
+                raise ValueError(f"Geçersiz sayı: '{number_text}'")
         elif char.isalpha():
             start = i
             while i < len(expression) and expression[i].isalpha():
                 i += 1
             tokens.append(expression[start:i])
         else:
-            raise ValueError(f"Geçersiz Karakter: '{char}'")
+            raise ValueError(f"Geçersiz karakter: '{char}'")
 
     return tokens
