@@ -149,15 +149,6 @@ Kurulum dosyası `installer/Output/` klasöründe oluşur.
 - **Bir programı dağıtmak.** PyInstaller ile Python kurulu olmayan bilgisayarlarda çalışan bir `.exe` oluşturmayı, Inno Setup ile kurulum sihirbazı hazırlamayı ve kullanıcı verisini neden program klasörüne değil kullanıcı klasörüne kaydetmek gerektiğini öğrendim.
 - **Git ile düzenli çalışmak.** Her adımı küçük ve anlamlı commit'lerle kaydetmeyi ve Conventional Commits biçimini kullanmayı alışkanlık hâline getirdim.
 
-## Gelecek Planları
-
-- Sonuç uzadıkça yazı boyutunun otomatik küçülmesi
-- Ters trigonometrik fonksiyonlar (`asin`, `acos`, `atan`) ve hiperbolik fonksiyonlar
-- Programcı modu (ikilik, sekizlik, onaltılık sayı sistemleri)
-- Birden fazla bellek kaydı (`MS` ve bellek listesi)
-- İngilizce arayüz seçeneği
-- macOS ve Linux için paketler
-
 ## Lisans
 
 [MIT](LICENSE) © 2026 Miraç Deprem

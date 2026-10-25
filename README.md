@@ -151,15 +151,6 @@ The installer is created in the `installer/Output/` folder.
 - **Distributing a program.** I learned to build an `.exe` that runs on computers without Python using PyInstaller, to create a setup wizard with Inno Setup, and why user data belongs in the user folder instead of the program folder.
 - **Working with Git regularly.** I made it a habit to save every step in small, meaningful commits using the Conventional Commits format.
 
-## Future Plans
-
-- Automatically shrinking the font as the result gets longer
-- Inverse trigonometric functions (`asin`, `acos`, `atan`) and hyperbolic functions
-- Programmer mode (binary, octal, hexadecimal)
-- Multiple memory slots (`MS` and a memory list)
-- English interface option
-- Packages for macOS and Linux
-
 ## License
 
 [MIT](LICENSE) © 2026 Miraç Deprem
